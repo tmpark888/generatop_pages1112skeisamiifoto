@@ -720,38 +720,40 @@ Page ${pageNumber}`;
                         yPosition += lineHeight;
                     });
                     
-                    // Add Maria's photo on every page (rotating through all 5 photos)
-const photoIndex = i % mariaPhotos.length;
-const photoUrl = mariaPhotos[photoIndex];
-const photoBase64 = loadedImages[photoUrl];
+                    // Add Maria's photo only on every 5th page (5, 10, 15, 20, 25, 30)
+                    if ((i + 1) % 5 === 0) {
+                        const photoIndex = Math.floor(((i + 1) - 5) / 5) % mariaPhotos.length;
+                        const photoUrl = mariaPhotos[photoIndex];
+                        const photoBase64 = loadedImages[photoUrl];
 
-if (photoBase64) {
-    try {
-        // Add photo in the bottom area
-        const photoWidth = 40;
-        const photoHeight = 53;
-        const photoX = (228.6 - photoWidth) / 2; // Center horizontally
-        const photoY = 300; // Position near bottom
-        
-        pdf.addImage(photoBase64, 'JPEG', photoX, photoY, photoWidth, photoHeight);
-        
-        // Add photo caption
-        pdf.setTextColor(255, 215, 0);
-        pdf.setFontSize(10);
-        pdf.setFont('times', 'italic');
-        const caption = mariaPhotoCaptions[photoIndex];
-        const captionLines = pdf.splitTextToSize(caption, 180);
-        let captionY = photoY + photoHeight + 8;
-        
-        captionLines.forEach(line => {
-            pdf.text(line, 25, captionY);
-            captionY += 4;
-        });
-        
-    } catch (photoError) {
-        console.error('Error adding photo to PDF:', photoError);
-    }
-}        
+                        if (photoBase64) {
+                            try {
+                                // Add photo in the bottom area
+                                const photoWidth = 40;
+                                const photoHeight = 53;
+                                const photoX = (228.6 - photoWidth) / 2; // Center horizontally
+                                const photoY = 300; // Position near bottom
+                                
+                                pdf.addImage(photoBase64, 'JPEG', photoX, photoY, photoWidth, photoHeight);
+                                
+                                // Add photo caption
+                                pdf.setTextColor(255, 215, 0);
+                                pdf.setFontSize(10);
+                                pdf.setFont('times', 'italic');
+                                const caption = mariaPhotoCaptions[photoIndex];
+                                const captionLines = pdf.splitTextToSize(caption, 180);
+                                let captionY = photoY + photoHeight + 8;
+                                
+                                captionLines.forEach(line => {
+                                    pdf.text(line, 25, captionY);
+                                    captionY += 4;
+                                });
+                                
+                            } catch (photoError) {
+                                console.error('Error adding photo to PDF:', photoError);
+                            }
+                        }
+                    }
                     updateProgress(20 + (i + 1) * 2.5);
                 }
                 
