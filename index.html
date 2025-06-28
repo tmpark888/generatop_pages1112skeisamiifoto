@@ -255,6 +255,15 @@
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
+
+        .maria-photo {
+            width: 150px;
+            height: 200px;
+            border-radius: 10px;
+            margin: 10px auto;
+            display: block;
+            border: 2px solid #ffd700;
+        }
     </style>
 </head>
 <body>
@@ -391,16 +400,16 @@ Personal Akashic Records Reading & Prosperity Activation`,
 Personal Wealth Frequency Attunement designed for your energy signature`
         ];
 
-        // URLs для фотографий Марии (5 разных изображений для ротации)
+        // URLs для фотографий Марии
         const mariaPhotos = [
-            "https://images.unsplash.com/photo-1494790108755-2616c28ca2ad?w=200&h=250&fit=crop&crop=face", // Professional woman 1
-            "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=250&fit=crop&crop=face", // Professional woman 2
-            "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=250&fit=crop&crop=face", // Professional woman 3
-            "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=200&h=250&fit=crop&crop=face", // Professional woman 4
-            "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=250&fit=crop&crop=face"  // Professional woman 5
+            "https://github.com/tmpark888/generatop_pages1112skeisamiifoto/blob/main/KZ2A0157.jpg?raw=true",
+            "https://github.com/tmpark888/generatop_pages1112skeisamiifoto/blob/main/KZ2A0218.jpg?raw=true",
+            "https://github.com/tmpark888/generatop_pages1112skeisamiifoto/blob/main/KZ2A0280.jpg?raw=true",
+            "https://github.com/tmpark888/generatop_pages1112skeisamiifoto/blob/main/KZ2A9740.jpg?raw=true",
+            "https://github.com/tmpark888/generatop_pages1112skeisamiifoto/blob/main/KZ2A9898.jpg?raw=true"
         ];
 
-        // Подписи к фотографиям Марии (тоже ротируются)
+        // Подписи к фотографиям Марии
         const mariaPhotoCaptions = [
             "Maria channeling ancient prosperity energies in her sacred space in Romania",
             "Maria during her morning abundance meditation ritual - 5 AM daily practice",
@@ -416,6 +425,49 @@ Personal Wealth Frequency Attunement designed for your energy signature`
             "Your soul frequency matches this blessing for only 24 hours",
             "Maria sensed your readiness level from 5000 miles away..."
         ];
+
+        // Хранилище для загруженных изображений
+        let loadedImages = {};
+
+        // Функция для загрузки изображения и конвертации в base64
+        async function loadImageAsBase64(url) {
+            if (loadedImages[url]) {
+                return loadedImages[url];
+            }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const blob = await response.blob();
+                
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        loadedImages[url] = reader.result;
+                        resolve(reader.result);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (error) {
+                console.error('Error loading image:', error);
+                return null;
+            }
+        }
+
+        // Функция для предварительной загрузки всех изображений
+        async function preloadImages() {
+            console.log('Preloading Maria photos...');
+            const promises = mariaPhotos.map(url => loadImageAsBase64(url));
+            try {
+                await Promise.allSettled(promises);
+                console.log('All Maria photos preloaded');
+            } catch (error) {
+                console.error('Error preloading images:', error);
+            }
+        }
 
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
@@ -506,7 +558,6 @@ Personal Wealth Frequency Attunement designed for your energy signature`
             const mariaPhotoSection = pageNumber % 5 === 0 ? `
 
 *** MARIA'S SACRED MOMENT FOR YOU:
-[PHOTO: ${mariaPhotoCaptions[photoIndex]}]
 
 "I feel your energy reaching out to me through these pages. You're not here by accident - your soul called my soul across the distance. This is your moment of divine alignment. Trust what you're feeling right now..."
 
@@ -560,7 +611,16 @@ Page ${pageNumber}`;
             const finalBlessing = blessing || defaultBlessings[pageNumber - 1] || `Default blessing for day ${pageNumber}`;
             
             const previewDiv = document.getElementById('pagePreview');
-            previewDiv.innerHTML = `<pre style="white-space: pre-wrap; text-align: left; font-family: Georgia, serif; line-height: 1.5;">${createPageText(pageNumber, finalBlessing, whatsapp, email)}</pre>`;
+            let previewContent = `<pre style="white-space: pre-wrap; text-align: left; font-family: Georgia, serif; line-height: 1.5;">${createPageText(pageNumber, finalBlessing, whatsapp, email)}</pre>`;
+            
+            // Add Maria's photo if it's a photo page (every 5th page)
+            if (pageNumber % 5 === 0) {
+                const photoIndex = Math.floor((pageNumber - 5) / 5) % mariaPhotos.length;
+                previewContent += `<img src="${mariaPhotos[photoIndex]}" class="maria-photo" alt="${mariaPhotoCaptions[photoIndex]}" style="display: block; margin: 20px auto; max-width: 200px; border-radius: 10px; border: 2px solid #ffd700;">`;
+                previewContent += `<p style="text-align: center; font-style: italic; color: #666; margin-top: 10px;">${mariaPhotoCaptions[photoIndex]}</p>`;
+            }
+            
+            previewDiv.innerHTML = previewContent;
             previewDiv.style.display = 'block';
         }
 
@@ -589,6 +649,10 @@ Page ${pageNumber}`;
             try {
                 updateProgress(5);
                 
+                // Preload all images first
+                await preloadImages();
+                updateProgress(15);
+                
                 // Collect all blessings
                 const blessings = [];
                 for (let i = 1; i <= 30; i++) {
@@ -598,7 +662,7 @@ Page ${pageNumber}`;
                 }
                 
                 console.log(`Collected ${blessings.length} blessings`);
-                updateProgress(10);
+                updateProgress(20);
                 
                 // Create PDF with 9x15 inch size (228.6 x 381 mm)
                 const pdf = new jsPDF({
@@ -633,7 +697,7 @@ Page ${pageNumber}`;
                     const lineHeight = 6;
                     
                     lines.forEach(line => {
-                        if (yPosition > 350) { // Adjusted for taller page
+                        if (yPosition > 280) { // Leave space for Maria's photo if needed
                             return;
                         }
                         
@@ -656,22 +720,54 @@ Page ${pageNumber}`;
                         yPosition += lineHeight;
                     });
                     
-                    updateProgress(10 + ((i + 1) / 30) * 85);
-                    
-                    // Small delay to prevent browser freeze
-                    if (i % 5 === 0) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
+                    // Add Maria's photo every 5 pages (5, 10, 15, 20, 25, 30)
+                    if ((i + 1) % 5 === 0) {
+                        const photoIndex = Math.floor(i / 5) % mariaPhotos.length;
+                        const photoUrl = mariaPhotos[photoIndex];
+                        const photoBase64 = loadedImages[photoUrl];
+                        
+                        if (photoBase64) {
+                            try {
+                                // Add photo in the bottom area
+                                // Add photo in the bottom area
+                                const photoWidth = 40;
+                                const photoHeight = 53;
+                                const photoX = (228.6 - photoWidth) / 2; // Center horizontally
+                                const photoY = 300; // Position near bottom
+                                
+                                pdf.addImage(photoBase64, 'JPEG', photoX, photoY, photoWidth, photoHeight);
+                                
+                                // Add photo caption
+                                pdf.setTextColor(255, 215, 0);
+                                pdf.setFontSize(10);
+                                pdf.setFont('times', 'italic');
+                                const caption = mariaPhotoCaptions[photoIndex];
+                                const captionLines = pdf.splitTextToSize(caption, 180);
+                                let captionY = photoY + photoHeight + 8;
+                                
+                                captionLines.forEach(line => {
+                                    pdf.text(line, 25, captionY);
+                                    captionY += 4;
+                                });
+                                
+                            } catch (photoError) {
+                                console.error('Error adding photo to PDF:', photoError);
+                            }
+                        }
                     }
+                    
+                    updateProgress(20 + (i + 1) * 2.5);
                 }
                 
-                updateProgress(98);
+                console.log('All pages generated, saving PDF...');
+                updateProgress(95);
                 
-                // Save the PDF
-                pdf.save('Sacred_Million_Dollar_Activation_30_Pages_9x15.pdf');
+                // Save PDF
+                const fileName = `Sacred_Million_Dollar_Activation_${new Date().toISOString().slice(0, 10)}.pdf`;
+                pdf.save(fileName);
                 
                 updateProgress(100);
-                console.log('PDF generated successfully!');
-                showSuccess('PDF с 30 страницами (9x15 дюймов) успешно создан и скачан!');
+                showSuccess(`✨ Sacred PDF generated successfully! ✨\n${fileName} has been downloaded.`);
                 
             } catch (error) {
                 console.error('PDF generation error:', error);
@@ -679,33 +775,17 @@ Page ${pageNumber}`;
             } finally {
                 generateBtn.disabled = false;
                 loadingMessage.style.display = 'none';
-                
                 setTimeout(() => {
-                    const progressBar = document.getElementById('progressBar');
-                    const progressFill = document.getElementById('progressFill');
-                    if (progressBar && progressFill) {
-                        progressBar.style.display = 'none';
-                        progressFill.style.width = '0%';
-                    }
-                }, 2000);
+                    document.getElementById('progressBar').style.display = 'none';
+                }, 3000);
             }
         }
 
-        // Initialize on page load
+        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            try {
-                initializeBlessings();
-                console.log('Application initialized successfully');
-            } catch (error) {
-                console.error('Initialization error:', error);
-                showError('Failed to initialize application');
-            }
-        });
-
-        // Global error handler
-        window.addEventListener('error', function(event) {
-            console.error('Global error:', event.error);
-            showError('An unexpected error occurred. Please refresh the page.');
+            console.log('Page loaded, initializing...');
+            initializeBlessings();
+            preloadImages(); // Start preloading images immediately
         });
     </script>
 </body>
