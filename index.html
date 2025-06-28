@@ -430,32 +430,37 @@ Personal Wealth Frequency Attunement designed for your energy signature`
         let loadedImages = {};
 
         // Функция для загрузки изображения и конвертации в base64
-        async function loadImageAsBase64(url) {
-            if (loadedImages[url]) {
-                return loadedImages[url];
-            }
+async function loadImageAsBase64(url) {
+    if (loadedImages[url]) {
+        return loadedImages[url];
+    }
 
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const blob = await response.blob();
-                
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        loadedImages[url] = reader.result;
-                        resolve(reader.result);
-                    };
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
-                });
-            } catch (error) {
-                console.error('Error loading image:', error);
-                return null;
-            }
+    try {
+        console.log(`Loading image: ${url}`);
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const blob = await response.blob();
+        
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                console.log(`Image loaded successfully: ${url.substring(url.lastIndexOf('/') + 1)}`);
+                loadedImages[url] = reader.result;
+                resolve(reader.result);
+            };
+            reader.onerror = (error) => {
+                console.error(`Error reading image: ${url}`, error);
+                reject(error);
+            };
+            reader.readAsDataURL(blob);
+        });
+    } catch (error) {
+        console.error('Error loading image:', error);
+        return null;
+    }
+}
 
         // Функция для предварительной загрузки всех изображений
 async function preloadImages() {
