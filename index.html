@@ -458,16 +458,25 @@ Personal Wealth Frequency Attunement designed for your energy signature`
         }
 
         // Функция для предварительной загрузки всех изображений
-        async function preloadImages() {
-            console.log('Preloading Maria photos...');
-            const promises = mariaPhotos.map(url => loadImageAsBase64(url));
-            try {
-                await Promise.allSettled(promises);
-                console.log('All Maria photos preloaded');
-            } catch (error) {
-                console.error('Error preloading images:', error);
+async function preloadImages() {
+    console.log('Preloading Maria photos...');
+    const promises = mariaPhotos.map(url => loadImageAsBase64(url));
+    try {
+        const results = await Promise.allSettled(promises);
+        results.forEach((result, index) => {
+            if (result.status === 'fulfilled' && result.value) {
+                console.log(`Photo ${index + 1} loaded successfully`);
+            } else {
+                console.error(`Failed to load photo ${index + 1}:`, result.reason);
             }
-        }
+        });
+        console.log('All Maria photos preloaded');
+        return true;
+    } catch (error) {
+        console.error('Error preloading images:', error);
+        return false;
+    }
+}
 
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
@@ -650,8 +659,13 @@ Page ${pageNumber}`;
                 updateProgress(5);
                 
                 // Preload all images first
-                await preloadImages();
-                updateProgress(15);
+const imagesLoaded = await preloadImages();
+if (!imagesLoaded) {
+    console.warn('Some images failed to load, continuing anyway...');
+}
+// Дополнительная пауза для гарантии загрузки
+await new Promise(resolve => setTimeout(resolve, 2000));
+updateProgress(15);
                 
                 // Collect all blessings
                 const blessings = [];
