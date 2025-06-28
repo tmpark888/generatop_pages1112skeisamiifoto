@@ -497,6 +497,9 @@ Personal Wealth Frequency Attunement designed for your energy signature`
             const caseText = caseElement ? caseElement.value.trim() : '';
             const finalCaseText = caseText || defaultCases[caseIndex] || '';
             
+            // Get Maria's photo caption for this page
+            const photoCaption = mariaPhotoCaptions[caseIndex];
+            
             // ИСПРАВЛЕНО: Убираем условие и добавляем триггер только каждые 5 страниц
             const triggerSection = pageNumber % 5 === 0 ? `\n*** ${trigger}\n` : '\n';
             
@@ -530,6 +533,13 @@ Ready for your FULL million-dollar activation?
 *** P.S. The fact that you felt drawn to page ${pageNumber} tells Maria everything about your spiritual readiness level...
 ${triggerSection}
 ${finalCaseText}
+
+*** PERSONAL MESSAGE FROM MARIA:
+"${photoCaption}"
+
+*** SACRED REMINDER:
+Your energy signature called you to this exact page. This is divine orchestration.
+Trust the process. Your breakthrough is already written in the stars.
 
 WhatsApp Maria: ${whatsapp} | Email: ${email}
 
@@ -616,8 +626,11 @@ Page ${pageNumber}`;
                     let yPosition = 25;
                     const lineHeight = 6;
                     
+                    // Reserve space for Maria's photo at the bottom
+                    const maxTextHeight = 280; // Leave space for photo + caption
+                    
                     lines.forEach(line => {
-                        if (yPosition > 350) { // Adjusted for taller page
+                        if (yPosition > maxTextHeight) {
                             return;
                         }
                         
@@ -626,7 +639,7 @@ Page ${pageNumber}`;
                             pdf.setTextColor(255, 215, 0); // Gold color
                             pdf.setFontSize(16);
                             pdf.setFont('times', 'bold');
-                        } else if (line.includes('*** MARIA\'S SACRED') || line.includes('*** DIVINE MESSAGE') || line.includes('*** MY MONEY') || line.includes('*** ABUNDANCE SIGNS') || line.includes('*** GRATITUDE') || line.includes('*** FEELING') || line.includes('*** RECENT SACRED') || line.includes('*** YOUR PERSONAL') || line.includes('*** BREAKTHROUGH') || line.includes('*** SACRED FAMILY') || line.includes('*** READY FOR') || line.includes('*** MILLENNIAL MONEY') || line.includes('*** YOUR GENERATIONAL') || line.includes('*** DIVINE INTERVENTION') || line.includes('*** YOUR SOUL\'S') || line.includes('*** YOUR CUSTOM')) {
+                        } else if (line.includes('*** MARIA\'S SACRED') || line.includes('*** DIVINE MESSAGE') || line.includes('*** MY MONEY') || line.includes('*** ABUNDANCE SIGNS') || line.includes('*** GRATITUDE') || line.includes('*** FEELING') || line.includes('*** RECENT SACRED') || line.includes('*** YOUR PERSONAL') || line.includes('*** BREAKTHROUGH') || line.includes('*** SACRED FAMILY') || line.includes('*** READY FOR') || line.includes('*** MILLENNIAL MONEY') || line.includes('*** YOUR GENERATIONAL') || line.includes('*** DIVINE INTERVENTION') || line.includes('*** YOUR SOUL\'S') || line.includes('*** YOUR CUSTOM') || line.includes('*** PERSONAL MESSAGE') || line.includes('*** SACRED REMINDER')) {
                             pdf.setTextColor(255, 215, 0); // Gold color
                             pdf.setFontSize(13);
                             pdf.setFont('times', 'bold');
@@ -639,6 +652,45 @@ Page ${pageNumber}`;
                         pdf.text(line, 25, yPosition);
                         yPosition += lineHeight;
                     });
+                    
+                    // Add Maria's photo at the bottom
+                    try {
+                        const photoIndex = i % 5;
+                        const photoUrl = mariaPhotos[photoIndex];
+                        
+                        // Create a placeholder for the photo (since we can't load external images in jsPDF easily)
+                        // Draw a golden rectangle as photo placeholder
+                        pdf.setFillColor(255, 215, 0); // Gold color
+                        pdf.rect(70, 300, 60, 75, 'F'); // Photo placeholder rectangle
+                        
+                        // Add photo frame
+                        pdf.setDrawColor(255, 255, 255);
+                        pdf.setLineWidth(1);
+                        pdf.rect(68, 298, 64, 79); // White frame around photo
+                        
+                        // Add "MARIA" text in the photo area
+                        pdf.setTextColor(26, 26, 46); // Dark text on gold background
+                        pdf.setFont('times', 'bold');
+                        pdf.setFontSize(16);
+                        pdf.text('MARIA', 85, 340);
+                        
+                        // Add photo caption below
+                        pdf.setTextColor(255, 215, 0); // Gold color
+                        pdf.setFont('times', 'italic');
+                        pdf.setFontSize(10);
+                        const caption = mariaPhotoCaptions[photoIndex];
+                        const captionLines = pdf.splitTextToSize(caption, 180);
+                        let captionY = 385;
+                        captionLines.forEach(captionLine => {
+                            if (captionY < 395) {
+                                pdf.text(captionLine, 25, captionY);
+                                captionY += 5;
+                            }
+                        });
+                        
+                    } catch (photoError) {
+                        console.log('Photo placement error:', photoError);
+                    }
                     
                     updateProgress(10 + ((i + 1) / 30) * 85);
                     
